@@ -5,7 +5,16 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM songs ORDER BY id');
+    const { rows } = await pool.query(`
+      SELECT id,
+        titulo      AS campo1,
+        genero      AS campo2,
+        descripcion AS campo3,
+        productores AS campo4,
+        duracion    AS campo5,
+        grammy      AS campo6
+      FROM songs ORDER BY id
+    `);
     res.status(200).json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Database error' });
@@ -14,7 +23,16 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM songs WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query(`
+      SELECT id,
+        titulo      AS campo1,
+        genero      AS campo2,
+        descripcion AS campo3,
+        productores AS campo4,
+        duracion    AS campo5,
+        grammy      AS campo6
+      FROM songs WHERE id = $1
+    `, [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Song not found' });
     res.status(200).json(rows[0]);
   } catch (err) {
@@ -40,14 +58,15 @@ router.post('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `INSERT INTO songs (titulo, genero, descripcion, productores, duracion, grammy)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING
-       id,
-       titulo   AS campo1,
-       genero   AS campo2,
-       descripcion AS campo3,
-       productores AS campo4,
-       duracion AS campo5,
-       grammy   AS campo6`,
+       VALUES ($1,$2,$3,$4,$5,$6)
+       RETURNING
+         id,
+         titulo      AS campo1,
+         genero      AS campo2,
+         descripcion AS campo3,
+         productores AS campo4,
+         duracion    AS campo5,
+         grammy      AS campo6`,
       [campo1.trim(), campo2.trim(), campo3.trim(), campo4, campo5, campo6]
     );
     res.status(201).json(rows[0]);
@@ -73,15 +92,17 @@ router.put('/:id', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `UPDATE songs SET titulo=$1, genero=$2, descripcion=$3, productores=$4, duracion=$5, grammy=$6
-       WHERE id=$7 RETURNING
-       id,
-       titulo      AS campo1,
-       genero      AS campo2,
-       descripcion AS campo3,
-       productores AS campo4,
-       duracion    AS campo5,
-       grammy      AS campo6`,
+      `UPDATE songs
+       SET titulo=$1, genero=$2, descripcion=$3, productores=$4, duracion=$5, grammy=$6
+       WHERE id=$7
+       RETURNING
+         id,
+         titulo      AS campo1,
+         genero      AS campo2,
+         descripcion AS campo3,
+         productores AS campo4,
+         duracion    AS campo5,
+         grammy      AS campo6`,
       [campo1.trim(), campo2.trim(), campo3.trim(), campo4, campo5, campo6, req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Song not found' });
@@ -124,14 +145,15 @@ router.patch('/:id', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `UPDATE songs SET ${setClause} WHERE id = $${values.length} RETURNING
-       id,
-       titulo      AS campo1,
-       genero      AS campo2,
-       descripcion AS campo3,
-       productores AS campo4,
-       duracion    AS campo5,
-       grammy      AS campo6`,
+      `UPDATE songs SET ${setClause} WHERE id = $${values.length}
+       RETURNING
+         id,
+         titulo      AS campo1,
+         genero      AS campo2,
+         descripcion AS campo3,
+         productores AS campo4,
+         duracion    AS campo5,
+         grammy      AS campo6`,
       values
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Song not found' });
