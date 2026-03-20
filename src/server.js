@@ -1,10 +1,22 @@
 import express from 'express';
 import cors from 'cors';
-import productsRouter from './routes/songs.js';
+import dotenv from 'dotenv';
+import songsRouter from './routes/songs.js';
 
-const app = express();
-app.use(cors());
+dotenv.config();
+
+const app  = express();
+const PORT = process.env.APP_PORT || 3000;
+
+app.use(cors({
+  origin: '*',         
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
+
+app.options('*', cors());
+
 app.use(express.json());
-app.use('/songs', productsRouter);
+app.use('/songs', songsRouter);
 
-app.listen(process.env.APP_PORT || 3000);
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
