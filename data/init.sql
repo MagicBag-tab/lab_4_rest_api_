@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS songs (
   id        SERIAL PRIMARY KEY,
-  title    VARCHAR(255) NOT NULL,  
-  genre_description     VARCHAR(255) NOT NULL,  
-  lyrics    TEXT         NOT NULL,  
-  producers INTEGER      NOT NULL, 
-  duration  FLOAT        NOT NULL,  
-  grammy    BOOLEAN      NOT NULL   
+  campo1    VARCHAR(255) NOT NULL,  
+  campo2    VARCHAR(255) NOT NULL,  
+  campo3    TEXT         NOT NULL,  
+  campo4    INTEGER      NOT NULL,  
+  campo5    FLOAT        NOT NULL,  
+  campo6    BOOLEAN      NOT NULL   
 );

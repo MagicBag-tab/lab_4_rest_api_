@@ -6,12 +6,12 @@ services:
     ports:
       - "${APP_PORT}:3000"
     depends_on:
-      db:
+      data:
         condition: service_healthy
     env_file:
       - .env
 
-  db:
+  data:
     image: postgres:15
     container_name: postgres-db
     restart: always
@@ -24,7 +24,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
