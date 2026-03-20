@@ -25,11 +25,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { campo1, campo2, campo3, campo4, campo5, campo6 } = req.body;
 
-  if (
-    campo1 === undefined || campo2 === undefined || campo3 === undefined ||
-    campo4 === undefined || campo5 === undefined || campo6 === undefined
-  ) {
-    return res.status(400).json({ error: 'All fields are required: campo1, campo2, campo3, campo4, campo5, campo6' });
+  if (campo1 === undefined || campo2 === undefined || campo3 === undefined ||
+      campo4 === undefined || campo5 === undefined || campo6 === undefined) {
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
   if (typeof campo1 !== 'string' || campo1.trim() === '') return res.status(400).json({ error: 'campo1 must be a non-empty string' });
@@ -41,7 +39,15 @@ router.post('/', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      'INSERT INTO songs (campo1, campo2, campo3, campo4, campo5, campo6) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+      `INSERT INTO songs (titulo, genero, descripcion, productores, duracion, grammy)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING
+       id,
+       titulo   AS campo1,
+       genero   AS campo2,
+       descripcion AS campo3,
+       productores AS campo4,
+       duracion AS campo5,
+       grammy   AS campo6`,
       [campo1.trim(), campo2.trim(), campo3.trim(), campo4, campo5, campo6]
     );
     res.status(201).json(rows[0]);
@@ -53,10 +59,8 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   const { campo1, campo2, campo3, campo4, campo5, campo6 } = req.body;
 
-  if (
-    campo1 === undefined || campo2 === undefined || campo3 === undefined ||
-    campo4 === undefined || campo5 === undefined || campo6 === undefined
-  ) {
+  if (campo1 === undefined || campo2 === undefined || campo3 === undefined ||
+      campo4 === undefined || campo5 === undefined || campo6 === undefined) {
     return res.status(400).json({ error: 'All fields are required for PUT' });
   }
 
@@ -69,7 +73,15 @@ router.put('/:id', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      'UPDATE songs SET campo1=$1, campo2=$2, campo3=$3, campo4=$4, campo5=$5, campo6=$6 WHERE id=$7 RETURNING *',
+      `UPDATE songs SET titulo=$1, genero=$2, descripcion=$3, productores=$4, duracion=$5, grammy=$6
+       WHERE id=$7 RETURNING
+       id,
+       titulo      AS campo1,
+       genero      AS campo2,
+       descripcion AS campo3,
+       productores AS campo4,
+       duracion    AS campo5,
+       grammy      AS campo6`,
       [campo1.trim(), campo2.trim(), campo3.trim(), campo4, campo5, campo6, req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Song not found' });
@@ -80,8 +92,17 @@ router.put('/:id', async (req, res) => {
 });
 
 router.patch('/:id', async (req, res) => {
-  const allowed = ['campo1', 'campo2', 'campo3', 'campo4', 'campo5', 'campo6'];
-  const fields = Object.keys(req.body).filter(k => allowed.includes(k));
+  const fieldMap = {
+    campo1: 'titulo',
+    campo2: 'genero',
+    campo3: 'descripcion',
+    campo4: 'productores',
+    campo5: 'duracion',
+    campo6: 'grammy'
+  };
+
+  const allowed = Object.keys(fieldMap);
+  const fields  = Object.keys(req.body).filter(k => allowed.includes(k));
 
   if (fields.length === 0) return res.status(400).json({ error: 'No valid fields provided' });
 
@@ -97,13 +118,20 @@ router.patch('/:id', async (req, res) => {
       return res.status(400).json({ error: 'campo6 must be a boolean' });
   }
 
-  const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ');
+  const setClause = fields.map((f, i) => `${fieldMap[f]} = $${i + 1}`).join(', ');
   const values    = fields.map(f => typeof req.body[f] === 'string' ? req.body[f].trim() : req.body[f]);
   values.push(req.params.id);
 
   try {
     const { rows } = await pool.query(
-      `UPDATE songs SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+      `UPDATE songs SET ${setClause} WHERE id = $${values.length} RETURNING
+       id,
+       titulo      AS campo1,
+       genero      AS campo2,
+       descripcion AS campo3,
+       productores AS campo4,
+       duracion    AS campo5,
+       grammy      AS campo6`,
       values
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Song not found' });
