@@ -5,18 +5,16 @@ import songsRouter from './routes/songs.js';
 
 dotenv.config();
 
-const app  = express();
-const PORT = process.env.APP_PORT || 3000;
+const app = express();
 
 app.use(cors({
-  origin: '*',         
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
 
 app.options('*', cors());
-
 app.use(express.json());
 app.use('/songs', songsRouter);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(3000, () => console.log('Server running on port 3000'));
